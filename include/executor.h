@@ -24,7 +24,7 @@ public:
         // m_cond_mutex = cond_mutex;
         // m_mutex = mutex;
         m_data = data;
-        code = -1;
+        m_code = -1;
     }
     T m_data;
     int m_code;
@@ -37,15 +37,16 @@ public:
 template <typename T>
 class FutureGuard
 {
+public:
     JsFuture<T> &m_future;
     FutureGuard(JsFuture<T> &future) : m_future(future)
     {
     }
     ~FutureGuard()
     {
-        pthread_mutex_lock(m_future->m_mutex);
-        pthread_cond_signal(m_future->m_cond_mutex);
-        pthread_mutex_unlock(m_future->m_mutex);
+        pthread_mutex_lock(m_future.m_mutex);
+        pthread_cond_signal(m_future.m_cond_mutex);
+        pthread_mutex_unlock(m_future.m_mutex);
     }
 };
 
@@ -73,7 +74,7 @@ public:
 
     int pushCompileFunc(JsFuture<CompileArgs> &args);
     int pushExecFunc(JsFuture<ExecArgs> &args);
-    void start();
+    void *start();
 
 private:
     void run();
@@ -82,6 +83,8 @@ private:
 
 private:
     sem_t m_sem;
+    pthread_mutex_t m_func_mutex;
+    pthread_mutex_t m_exec_mutex;
     std::queue<JsFuture<CompileArgs>> m_func_queue;
     std::queue<JsFuture<ExecArgs>> m_exec_queue;
 };

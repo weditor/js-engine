@@ -10,6 +10,7 @@ JsClient::JsClient(const unsigned int max_size) : m_max_size(max_size)
         pthread_cond_init(mutex, nullptr);
         m_cond_mutexes.push_back(mutex);
     }
+    m_js_executor.start();
 }
 JsClient::~JsClient()
 {
@@ -21,6 +22,7 @@ JsClient::~JsClient()
         delete mutex;
     }
 }
+
 int JsClient::compileFunc(std::string name, std::string content)
 {
     // 修改为构造函数保证 cond_mutex 回收。
@@ -52,7 +54,7 @@ std::string JsClient::execFunc(std::string name, std::string content)
 
 pthread_cond_t *JsClient::get_cond_mutex()
 {
-    MutexGuard(&m_vec_mutex);
+    MutexGuard guard(&m_vec_mutex);
     pthread_cond_t *mutex = nullptr;
     if (m_cond_mutexes.size() > 0)
     {
@@ -64,6 +66,6 @@ pthread_cond_t *JsClient::get_cond_mutex()
 
 void JsClient::collect_cond_mutex(pthread_cond_t *mutex)
 {
-    MutexGuard(&m_vec_mutex);
+    MutexGuard guard(&m_vec_mutex);
     m_cond_mutexes.push_back(mutex);
 }

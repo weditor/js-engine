@@ -10,6 +10,7 @@ class JsClient
 {
 public:
     JsClient(const unsigned int max_size);
+    ~JsClient();
     int compileFunc(std::string name, std::string content);
     std::string execFunc(std::string name, std::string content);
 
