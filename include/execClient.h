@@ -15,14 +15,15 @@ public:
     std::string execFunc(std::string name, std::string content);
 
 private:
-    pthread_cond_t *get_cond_mutex();
-    void collect_cond_mutex(pthread_cond_t *mutex);
+    std::condition_variable *get_cond_mutex();
+    void collect_cond_mutex(std::condition_variable *mutex);
 
 private:
     const unsigned int m_max_size;
-    pthread_mutex_t m_mutex;
+    // pthread_mutex_t m_mutex;
+    std::mutex m_mutex;
     pthread_mutex_t m_vec_mutex;
-    std::vector<pthread_cond_t *> m_cond_mutexes;
+    std::vector<std::condition_variable *> m_cond_mutexes;
     JsExecutor m_js_executor;
 };
 
