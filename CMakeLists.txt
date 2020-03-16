@@ -6,9 +6,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(LINK_DIR lib)
 link_directories((${LINK_DIR}))
 
-add_library(js_executor SHARED src/execClient.cpp src/executor.cpp)
-target_include_directories(js_executor PUBLIC include include/chakra)
-target_link_libraries(js_executor chakra_exec ChakraCore)
+add_library(chakra_exec SHARED src/execClient.cpp src/executor.cpp src/c_api.cpp)
+target_include_directories(chakra_exec PUBLIC include include/chakra)
+target_link_libraries(chakra_exec ChakraCore)
 
 add_executable(main src/main.cpp)
-target_link_libraries(main js_executor pthread)
+target_link_libraries(main chakra_exec pthread)

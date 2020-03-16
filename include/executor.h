@@ -27,11 +27,12 @@ public:
     {
         m_data = data;
         m_code = -1;
+        m_result = nullptr;
     }
     T m_data;
     int m_code;
     std::string message;
-    std::string m_result;
+    char *m_result;
     std::mutex *const m_mutex;
     std::condition_variable *m_cond;
 };

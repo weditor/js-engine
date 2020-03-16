@@ -136,7 +136,7 @@ void JsExecutor::run()
             char *result = this->execFunc(fut->m_data.name, fut->m_data.jsContent);
             fut->m_result = result;
             fut->m_code = 0;
-            free(result);
+            // free(result);
         }
     }
 }

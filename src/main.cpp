@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <ctime>
+#include <cstring>
 
 using namespace std;
 
@@ -20,11 +21,13 @@ int main(int args, char **argv)
     std::cout << ret << std::endl;
     sleep(1);
 
+    int len = 0;
     clock_t time_start = clock();
     for (int i = 0; i < 100000; ++i)
     {
         ret = client.execFunc("myfunc", "{\"data\": 9}");
         // std::cout << i << std::endl;
+        len += strlen(ret);
     }
     clock_t time_end = clock();
     cout << "time use:" << 1000 * (time_end - time_start) / (double)CLOCKS_PER_SEC << "ms" << endl;

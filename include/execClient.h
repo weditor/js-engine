@@ -12,7 +12,7 @@ public:
     JsClient(const unsigned int max_size);
     ~JsClient();
     int compileFunc(std::string name, std::string content);
-    std::string execFunc(std::string name, std::string content);
+    char *execFunc(std::string name, std::string content);
 
 private:
     std::condition_variable *get_cond_mutex();
@@ -25,6 +25,16 @@ private:
     pthread_mutex_t m_vec_mutex;
     std::vector<std::condition_variable *> m_cond_mutexes;
     JsExecutor m_js_executor;
+};
+
+class FunctionGuard
+{
+public:
+    FunctionGuard(std::function<void()> &func);
+    ~FunctionGuard();
+
+private:
+    std::function<void()> &m_func;
 };
 
 #endif

@@ -27,37 +27,30 @@ int JsClient::compileFunc(std::string name, std::string content)
 {
     // 修改为构造函数保证 cond_mutex 回收。
     auto *cond_mutex = get_cond_mutex();
+    std::function<void()> myfunc = [&]() { this->collect_cond_mutex(cond_mutex); };
+    FunctionGuard guard(myfunc);
 
     auto fut = JsFuture<CompileArgs>({name, content}, cond_mutex, &m_mutex);
     std::unique_lock<std::mutex> lock(m_mutex);
-    // std::cout << " JsClient::compileFunc " << name << "|||" << std::endl;
     m_js_executor.pushCompileFunc(fut);
-    // cond_mutex->wait(lock);
     cond_mutex->wait(lock, [&]() { return fut.m_code != -1; });
-    // std::cout << " JsClient::compileFunc finish " << name << std::endl;
-    // std::cout<<
-    // auto fut = JsFuture<CompileArgs>({name, content}, cond_mutex, &m_mutex);
-    // pthread_mutex_lock(fut.m_mutex);
-    // m_js_executor.pushCompileFunc(fut);
-    // pthread_cond_wait(fut.m_cond_mutex, fut.m_mutex);
-    // pthread_mutex_unlock(fut.m_mutex);
 
-    collect_cond_mutex(cond_mutex);
+    // collect_cond_mutex(cond_mutex);
     return fut.m_code;
 }
-std::string JsClient::execFunc(std::string name, std::string content)
+char *JsClient::execFunc(std::string name, std::string content)
 {
     // 修改为构造函数保证 cond_mutex 回收。
     auto *cond_mutex = get_cond_mutex();
+    std::function<void()> myfunc = [&]() { this->collect_cond_mutex(cond_mutex); };
+    FunctionGuard guard(myfunc);
 
     auto fut = JsFuture<ExecArgs>({name, content}, cond_mutex, &m_mutex);
     std::unique_lock<std::mutex> lock(m_mutex);
     m_js_executor.pushExecFunc(fut);
-    // cond_mutex->wait(lock);
     cond_mutex->wait(lock, [&]() { return fut.m_code != -1; });
 
-    collect_cond_mutex(cond_mutex);
-    // std::cout << fut.m_result << std::endl;
+    // collect_cond_mutex(cond_mutex);
     return fut.m_result;
 }
 
@@ -77,4 +70,13 @@ void JsClient::collect_cond_mutex(std::condition_variable *mutex)
 {
     MutexGuard guard(&m_vec_mutex);
     m_cond_mutexes.push_back(mutex);
+}
+
+FunctionGuard::FunctionGuard(std::function<void()> &func) : m_func(func)
+{
+}
+
+FunctionGuard::~FunctionGuard()
+{
+    m_func();
 }
